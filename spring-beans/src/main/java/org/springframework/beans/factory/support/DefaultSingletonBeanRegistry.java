@@ -131,6 +131,9 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	/**
 	 * Add the given singleton object to the singleton cache of this factory.
 	 * <p>To be called for eager registration of singletons.
+	 *
+	 * 即将二缓和三缓中的此bean对象删除，放入一缓记录
+	 *
 	 * @param beanName the name of the bean
 	 * @param singletonObject the singleton object
 	 */
@@ -224,6 +227,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 				if (logger.isDebugEnabled()) {
 					logger.debug("Creating shared instance of singleton bean '" + beanName + "'");
 				}
+				// 将此bean放入创建中map 即singletonsCurrentlyInCreation
 				beforeSingletonCreation(beanName);
 				boolean newSingleton = false;
 				boolean recordSuppressedExceptions = (this.suppressedExceptions == null);
@@ -231,6 +235,9 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					this.suppressedExceptions = new LinkedHashSet<>();
 				}
 				try {
+					/**
+					 * 创建
+					 */
 					singletonObject = singletonFactory.getObject();
 					newSingleton = true;
 				}

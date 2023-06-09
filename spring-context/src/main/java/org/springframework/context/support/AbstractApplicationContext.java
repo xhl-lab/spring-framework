@@ -38,7 +38,11 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory;
+import org.springframework.beans.factory.support.AbstractBeanFactory;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.support.ResourceEditorRegistrar;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -561,9 +565,16 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 				StartupStep beanPostProcess = this.applicationStartup.start("spring.context.beans.post-process");
 				// Invoke factory processors registered as beans in the context.
+				/**
+				 * 注册Bean定义
+				 * */
 				invokeBeanFactoryPostProcessors(beanFactory);
 
 				// Register bean processors that intercept bean creation.
+				/**
+				 * 将BeanPostProcessor添加到BeanFactory中
+				 * {@link AbstractBeanFactory#addBeanPostProcessor(BeanPostProcessor)}
+				 */
 				registerBeanPostProcessors(beanFactory);
 				beanPostProcess.end();
 
@@ -577,6 +588,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				onRefresh();
 
 				// Check for listener beans and register them.
+				/**
+				 * 给时间发布器注册监听器，并且发布一些早期事件
+				 */
 				registerListeners();
 
 				// Instantiate all remaining (non-lazy-init) singletons.
@@ -680,13 +694,20 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	protected void prepareBeanFactory(ConfigurableListableBeanFactory beanFactory) {
 		// Tell the internal bean factory to use the context's class loader etc.
 		beanFactory.setBeanClassLoader(getClassLoader());
+
+		// 注册EL表达式解析器
 		if (!shouldIgnoreSpel) {
 			beanFactory.setBeanExpressionResolver(new StandardBeanExpressionResolver(beanFactory.getBeanClassLoader()));
 		}
 		beanFactory.addPropertyEditorRegistrar(new ResourceEditorRegistrar(this, getEnvironment()));
 
 		// Configure the bean factory with context callbacks.
+		/**
+		 * 添加一个BeanPostProcessor，实现填充功能
+		 * {@link AbstractAutowireCapableBeanFactory#applyBeanPostProcessorsBeforeInitialization}
+		 */
 		beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
+
 		beanFactory.ignoreDependencyInterface(EnvironmentAware.class);
 		beanFactory.ignoreDependencyInterface(EmbeddedValueResolverAware.class);
 		beanFactory.ignoreDependencyInterface(ResourceLoaderAware.class);

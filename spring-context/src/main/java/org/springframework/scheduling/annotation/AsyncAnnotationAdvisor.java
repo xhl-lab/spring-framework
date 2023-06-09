@@ -96,6 +96,9 @@ public class AsyncAnnotationAdvisor extends AbstractPointcutAdvisor implements B
 			@Nullable Supplier<Executor> executor, @Nullable Supplier<AsyncUncaughtExceptionHandler> exceptionHandler) {
 
 		Set<Class<? extends Annotation>> asyncAnnotationTypes = new LinkedHashSet<>(2);
+		/**
+		 * 切入点
+		 */
 		asyncAnnotationTypes.add(Async.class);
 		try {
 			asyncAnnotationTypes.add((Class<? extends Annotation>)

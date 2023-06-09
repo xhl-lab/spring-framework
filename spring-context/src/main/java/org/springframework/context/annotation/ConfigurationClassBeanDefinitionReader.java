@@ -149,11 +149,19 @@ class ConfigurationClassBeanDefinitionReader {
 		if (configClass.isImported()) {
 			registerBeanDefinitionForImportedConfigurationClass(configClass);
 		}
+
+		/**
+		 * 从@Bean注解中加载bean定义
+		 */
 		for (BeanMethod beanMethod : configClass.getBeanMethods()) {
 			loadBeanDefinitionsForBeanMethod(beanMethod);
 		}
 
 		loadBeanDefinitionsFromImportedResources(configClass.getImportedResources());
+
+		/**
+		 * @see ImportBeanDefinitionRegistrar
+		 */
 		loadBeanDefinitionsFromRegistrars(configClass.getImportBeanDefinitionRegistrars());
 	}
 

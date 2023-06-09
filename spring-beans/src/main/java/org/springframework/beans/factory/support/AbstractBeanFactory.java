@@ -264,6 +264,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					logger.trace("Returning cached instance of singleton bean '" + beanName + "'");
 				}
 			}
+			/**
+			 * 如果是工厂bean，调用getObject方法返回实例
+			 */
 			beanInstance = getObjectForBeanInstance(sharedInstance, name, beanName, null);
 		}
 
@@ -310,6 +313,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				checkMergedBeanDefinition(mbd, beanName, args);
 
 				// Guarantee initialization of beans that the current bean depends on.
+				/**
+				 * 先初始化dependsOn主键中的bean
+				 */
 				String[] dependsOn = mbd.getDependsOn();
 				if (dependsOn != null) {
 					for (String dep : dependsOn) {
@@ -329,6 +335,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				}
 
 				// Create bean instance.
+				/**
+				 * 创建当前bean的实例
+				 */
 				if (mbd.isSingleton()) {
 					sharedInstance = getSingleton(beanName, () -> {
 						try {

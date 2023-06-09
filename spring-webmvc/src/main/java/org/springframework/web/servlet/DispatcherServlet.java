@@ -1036,6 +1036,9 @@ public class DispatcherServlet extends FrameworkServlet {
 			Exception dispatchException = null;
 
 			try {
+				/**
+				 * 如果请求种包含文件，则将文件解析且重新封装Request
+				 */
 				processedRequest = checkMultipart(request);
 				multipartRequestParsed = (processedRequest != request);
 
@@ -1059,6 +1062,9 @@ public class DispatcherServlet extends FrameworkServlet {
 					}
 				}
 
+				/**
+				 * 执行拦截器前置方法
+				 */
 				if (!mappedHandler.applyPreHandle(processedRequest, response)) {
 					return;
 				}
@@ -1071,6 +1077,10 @@ public class DispatcherServlet extends FrameworkServlet {
 				}
 
 				applyDefaultViewName(processedRequest, mv);
+
+				/**
+				 * 执行拦截器的后置方法
+				 */
 				mappedHandler.applyPostHandle(processedRequest, response, mv);
 			}
 			catch (Exception ex) {

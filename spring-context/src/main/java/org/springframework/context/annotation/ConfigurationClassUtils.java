@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.context.event.EventListenerFactory;
 import org.springframework.core.Conventions;
@@ -123,9 +124,25 @@ abstract class ConfigurationClassUtils {
 		}
 
 		Map<String, Object> config = metadata.getAnnotationAttributes(Configuration.class.getName());
+		/**
+		 * 得到方法上的Configuration注解，如果有，则给此BeanDef添加一个属性，后续用来判断是否需要增强处理
+		 *
+		 * {@link ConfigurationClassPostProcessor#enhanceConfigurationClasses(ConfigurableListableBeanFactory)}
+		 */
 		if (config != null && !Boolean.FALSE.equals(config.get("proxyBeanMethods"))) {
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_FULL);
 		}
+
+		/**
+		 * 其中会判断此bean上是否存在Configuration注解，没有则判断是否存在
+		 * Component
+		 * ComponentScan
+		 * Import
+		 * ImportResource
+		 * Bean
+		 *
+		 * 等注解
+		 */
 		else if (config != null || isConfigurationCandidate(metadata)) {
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_LITE);
 		}
@@ -134,6 +151,9 @@ abstract class ConfigurationClassUtils {
 		}
 
 		// It's a full or lite configuration candidate... Let's determine the order value, if any.
+		/**
+		 * 添加顺序
+		 */
 		Integer order = getOrder(metadata);
 		if (order != null) {
 			beanDef.setAttribute(ORDER_ATTRIBUTE, order);

@@ -288,6 +288,9 @@ public class ExceptionHandlerExceptionResolver extends AbstractHandlerMethodExce
 			if (beanType == null) {
 				throw new IllegalStateException("Unresolvable type for ControllerAdviceBean: " + adviceBean);
 			}
+			/**
+			 * 实例化的时候，会将标有@ControllerAdvice注解的类中的标有@ExceptionHandler注解方法遍历存储
+			 */
 			ExceptionHandlerMethodResolver resolver = new ExceptionHandlerMethodResolver(beanType);
 			if (resolver.hasExceptionMappings()) {
 				this.exceptionHandlerAdviceCache.put(adviceBean, resolver);
@@ -476,6 +479,9 @@ public class ExceptionHandlerExceptionResolver extends AbstractHandlerMethodExce
 			// Local exception handler methods on the controller class itself.
 			// To be invoked through the proxy, even in case of an interface-based proxy.
 			handlerType = handlerMethod.getBeanType();
+			/**
+			 * 更具controller
+			 */
 			ExceptionHandlerMethodResolver resolver = this.exceptionHandlerCache.get(handlerType);
 			if (resolver == null) {
 				resolver = new ExceptionHandlerMethodResolver(handlerType);

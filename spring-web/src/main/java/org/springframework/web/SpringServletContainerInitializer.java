@@ -140,6 +140,13 @@ public class SpringServletContainerInitializer implements ServletContainerInitia
 	 * @see AnnotationAwareOrderComparator
 	 */
 	@Override
+	/**
+	 * 通过JDK的SPI机制，在spring-web的包中存放一个SPI文件，tomcat启动完成之后会回调
+	 * ServletContainerInitializer的onStartup方法
+	 *
+	 * 通过注解HandlesTypes，servlet3.0会将容器中此注解的value的类型的实列放入参数webAppInitializerClasses
+	 * spring再排序后依次调用其中非抽象、非接口的子类的onStartup方法
+	 */
 	public void onStartup(@Nullable Set<Class<?>> webAppInitializerClasses, ServletContext servletContext)
 			throws ServletException {
 

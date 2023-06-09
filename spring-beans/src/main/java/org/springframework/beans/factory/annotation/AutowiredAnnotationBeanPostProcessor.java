@@ -664,6 +664,9 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
 					Object cachedFieldValue = null;
 					if (value != null || this.required) {
 						cachedFieldValue = desc;
+						/**
+						 * 存放引用Bean
+						 */
 						registerDependentBeans(beanName, autowiredBeanNames);
 						if (autowiredBeanNames.size() == 1) {
 							String autowiredBeanName = autowiredBeanNames.iterator().next();

@@ -208,6 +208,12 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	 * Detects handler methods at initialization.
 	 * @see #initHandlerMethods
 	 */
+
+	/**
+	 * 处理Controller注解
+	 *
+	 * @see org.springframework.stereotype.Controller
+	 */
 	@Override
 	public void afterPropertiesSet() {
 		initHandlerMethods();

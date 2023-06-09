@@ -315,6 +315,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 	private synchronized Object getSingletonInstance() {
 		if (this.singletonInstance == null) {
 			this.targetSource = freshTargetSource();
+			// 是JDK代理 但是没有设置接口，则默认使用代理class的所有接口
 			if (this.autodetectInterfaces && getProxiedInterfaces().length == 0 && !isProxyTargetClass()) {
 				// Rely on AOP infrastructure to tell us what interfaces to proxy.
 				Class<?> targetClass = getTargetClass();

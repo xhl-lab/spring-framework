@@ -266,6 +266,9 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 		}
 
 		enhanceConfigurationClasses(beanFactory);
+		/**
+		 * 调用ImportAware接口
+		 */
 		beanFactory.addBeanPostProcessor(new ImportAwareBeanPostProcessor(beanFactory));
 	}
 
@@ -275,6 +278,9 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 	 */
 	public void processConfigBeanDefinitions(BeanDefinitionRegistry registry) {
 		List<BeanDefinitionHolder> configCandidates = new ArrayList<>();
+		/**
+		 * 得到工厂中已经插入的BeanDefinitionNames
+		 */
 		String[] candidateNames = registry.getBeanDefinitionNames();
 
 		for (String beanName : candidateNames) {
@@ -445,6 +451,9 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 			// Set enhanced subclass of the user-specified bean class
 			Class<?> configClass = beanDef.getBeanClass();
 			Class<?> enhancedClass = enhancer.enhance(configClass, this.beanClassLoader);
+			/**
+			 * 增强Class，后续在实例化Bean的时候，创建出增强bean
+			 */
 			if (configClass != enhancedClass) {
 				if (logger.isTraceEnabled()) {
 					logger.trace(String.format("Replacing bean definition '%s' existing class '%s' with " +

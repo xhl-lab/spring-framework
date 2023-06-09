@@ -36,6 +36,7 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProce
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.support.MergedBeanDefinitionPostProcessor;
 import org.springframework.beans.factory.support.RootBeanDefinition;
+import org.springframework.context.annotation.ConfigurationClassPostProcessor;
 import org.springframework.core.OrderComparator;
 import org.springframework.core.Ordered;
 import org.springframework.core.PriorityOrdered;
@@ -99,6 +100,13 @@ final class PostProcessorRegistrationDelegate {
 			List<BeanDefinitionRegistryPostProcessor> currentRegistryProcessors = new ArrayList<>();
 
 			// First, invoke the BeanDefinitionRegistryPostProcessors that implement PriorityOrdered.
+			/**
+			 * 首先从DefaultListableBeanFactory中拿到BeanDefinitionRegistryPostProcessor类型的beanName,
+			 * 然后找到其中实现了PriorityOrdered接口的bean，执行重写方法，给容器中添加BeanDefinition
+			 *
+			 * 大部分只执行 ConfigurationClassPostProcessor.java
+			 * {@link ConfigurationClassPostProcessor#postProcessBeanDefinitionRegistry(BeanDefinitionRegistry)}
+			 */
 			String[] postProcessorNames =
 					beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
 			for (String ppName : postProcessorNames) {
@@ -113,6 +121,10 @@ final class PostProcessorRegistrationDelegate {
 			currentRegistryProcessors.clear();
 
 			// Next, invoke the BeanDefinitionRegistryPostProcessors that implement Ordered.
+			/**
+			 * 然后再次从DefaultListableBeanFactory中拿到BeanDefinitionRegistryPostProcessor类型的beanName,
+			 * 然后找到其中实现了Ordered接口的bean，执行重写方法，给容器中添加BeanDefinition
+			 */
 			postProcessorNames = beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
 			for (String ppName : postProcessorNames) {
 				if (!processedBeans.contains(ppName) && beanFactory.isTypeMatch(ppName, Ordered.class)) {
@@ -233,6 +245,9 @@ final class PostProcessorRegistrationDelegate {
 		List<String> orderedPostProcessorNames = new ArrayList<>();
 		List<String> nonOrderedPostProcessorNames = new ArrayList<>();
 		for (String ppName : postProcessorNames) {
+			/**
+			 * 实现了PriorityOrdered，必须优先加载
+			 */
 			if (beanFactory.isTypeMatch(ppName, PriorityOrdered.class)) {
 				BeanPostProcessor pp = beanFactory.getBean(ppName, BeanPostProcessor.class);
 				priorityOrderedPostProcessors.add(pp);

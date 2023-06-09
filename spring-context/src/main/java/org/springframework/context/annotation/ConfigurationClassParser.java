@@ -190,6 +190,9 @@ class ConfigurationClassParser {
 			}
 		}
 
+		/**
+		 * 当其他的Import
+		 */
 		this.deferredImportSelectorHandler.process();
 	}
 
@@ -223,6 +226,13 @@ class ConfigurationClassParser {
 
 
 	protected void processConfigurationClass(ConfigurationClass configClass, Predicate<String> filter) throws IOException {
+		/**
+		 * 判断当前BeanDefinition是否需要，
+		 * 实现Condition接口，方法返回true，则表示需要，反之则不要
+		 * 同理：SpringBoot的一些变种也是通过此方法来实现
+		 * @see Condition
+		 * @see Conditional
+		 */
 		if (this.conditionEvaluator.shouldSkip(configClass.getMetadata(), ConfigurationPhase.PARSE_CONFIGURATION)) {
 			return;
 		}
@@ -267,12 +277,19 @@ class ConfigurationClassParser {
 			ConfigurationClass configClass, SourceClass sourceClass, Predicate<String> filter)
 			throws IOException {
 
+		/**
+		 * 如果此配置类包含Component注解，则也需要处理其内部类
+		 *
+		 */
 		if (configClass.getMetadata().isAnnotated(Component.class.getName())) {
 			// Recursively process any member (nested) classes first
 			processMemberClasses(configClass, sourceClass, filter);
 		}
 
 		// Process any @PropertySource annotations
+		/**
+		 * 如果此配置类包含PropertySources，则将properties文件中的参数加入environment中
+		 */
 		for (AnnotationAttributes propertySource : AnnotationConfigUtils.attributesForRepeatable(
 				sourceClass.getMetadata(), PropertySources.class,
 				org.springframework.context.annotation.PropertySource.class)) {
@@ -329,9 +346,13 @@ class ConfigurationClassParser {
 		}
 
 		// Process default methods on interfaces
+		/**
+		 * 接口中会有default方法，如果被@Bean标注，也要解析
+		 */
 		processInterfaces(configClass, sourceClass);
 
 		// Process superclass, if any
+		// 递归解析父类
 		if (sourceClass.getMetadata().hasSuperClass()) {
 			String superclass = sourceClass.getMetadata().getSuperClassName();
 			if (superclass != null && !superclass.startsWith("java") &&
@@ -565,6 +586,9 @@ class ConfigurationClassParser {
 			this.importStack.push(configClass);
 			try {
 				for (SourceClass candidate : importCandidates) {
+					/**
+					 * 如果Import注解上的类 实现了ImportSelector接口
+					 */
 					if (candidate.isAssignable(ImportSelector.class)) {
 						// Candidate class is an ImportSelector -> delegate to it to determine imports
 						Class<?> candidateClass = candidate.loadClass();
@@ -574,15 +598,25 @@ class ConfigurationClassParser {
 						if (selectorFilter != null) {
 							exclusionFilter = exclusionFilter.or(selectorFilter);
 						}
+						/**
+						 *  延迟导入
+						 */
 						if (selector instanceof DeferredImportSelector) {
 							this.deferredImportSelectorHandler.handle(configClass, (DeferredImportSelector) selector);
 						}
 						else {
+							/**
+							 * 处理selectImports方法中返回的类
+							 */
 							String[] importClassNames = selector.selectImports(currentSourceClass.getMetadata());
 							Collection<SourceClass> importSourceClasses = asSourceClasses(importClassNames, exclusionFilter);
 							processImports(configClass, currentSourceClass, importSourceClasses, exclusionFilter, false);
 						}
 					}
+					/**
+					 * 如果类型为 ImportBeanDefinitionRegistrar，
+					 * 则放入importBeanDefinitionRegistrars集合中，后续加载Bean定义
+					 */
 					else if (candidate.isAssignable(ImportBeanDefinitionRegistrar.class)) {
 						// Candidate class is an ImportBeanDefinitionRegistrar ->
 						// delegate to it to register additional bean definitions
@@ -901,6 +935,9 @@ class ConfigurationClassParser {
 
 		@Override
 		public void process(AnnotationMetadata metadata, DeferredImportSelector selector) {
+			/**
+			 * 记录一下Import的类
+			 */
 			for (String importClassName : selector.selectImports(metadata)) {
 				this.imports.add(new Entry(metadata, importClassName));
 			}

@@ -281,6 +281,9 @@ class ConfigurationClassEnhancer {
 		 */
 		@Override
 		@Nullable
+		/**
+		 * 增强处理@Bean注解
+		 */
 		public Object intercept(Object enhancedConfigInstance, Method beanMethod, Object[] beanMethodArgs,
 					MethodProxy cglibMethodProxy) throws Throwable {
 
@@ -288,6 +291,9 @@ class ConfigurationClassEnhancer {
 			String beanName = BeanAnnotationHelper.determineBeanNameFor(beanMethod);
 
 			// Determine whether this bean is a scoped-proxy
+			/**
+			 * 如果@Bean注解上标注@Scope
+			 */
 			if (BeanAnnotationHelper.isScopedProxy(beanMethod)) {
 				String scopedBeanName = ScopedProxyCreator.getTargetBeanName(beanName);
 				if (beanFactory.isCurrentlyInCreation(scopedBeanName)) {
